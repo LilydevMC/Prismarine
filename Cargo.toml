@@ -5,6 +5,7 @@ authors = ["Jade Nash <jade@lilydev.com>"]
 description = "A utility for creating and exporting Minecraft resource packs."
 keywords = ["minecraft", "utility", "resource-pack", "texture-pack"]
 readme = "README.md"
+documentation = "https://prismarine.jadelily.dev"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 
