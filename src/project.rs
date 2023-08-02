@@ -72,7 +72,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         general: General {
             name: name.clone(),
             description: "This is an example pack description!".to_string(),
-            pack_version: "0.1.0".to_string(),
+            version: "0.1.0".to_string(),
             minecraft_version: "1.20.1".to_string(),
             license: "ARR".to_string(),
             name_template: None
@@ -157,7 +157,6 @@ pub fn export_project() {
             Ok(entry) => {
                 if entry.path().to_str().unwrap() != "." {
                     included_items.push(entry.clone());
-                    println!("{}", entry.path().to_str().unwrap())
                 }
             },
             Err(_) => {
@@ -183,7 +182,18 @@ pub fn export_project() {
         }
     };
 
-    let file_writer = match File::create(format!("{}.zip", &config.general.name)) {
+    let output_file_name = match config.general.name_template {
+        Some(res) => {
+            res
+                .replace("{name}", &config.general.name)
+                .replace("{version}", &config.general.version)
+        },
+        None => {
+            format!("{} v{}", config.general.name, config.general.version)
+        }
+    };
+
+    let file_writer = match File::create(format!("{}.zip", output_file_name)) {
         Ok(file) => file,
         Err(_) => {
             pris_err!(format!("Couldn't create file `{}`.zip", &config.general.name));
@@ -216,7 +226,6 @@ pub fn export_project() {
         }
 
         if name.as_os_str().is_empty() {
-            println!("{}", "Skipping empty directory".italic());
             continue
         }
 

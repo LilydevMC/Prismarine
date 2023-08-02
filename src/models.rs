@@ -9,9 +9,8 @@ pub struct Config {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct General {
     pub name: String,
-    #[serde(rename = "mc_description")]
     pub description: String,
-    pub pack_version: String,
+    pub version: String,
     pub minecraft_version: String,
     pub license: String,
     pub name_template: Option<String>
