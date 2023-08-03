@@ -322,6 +322,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "flexver-rs"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "755152beac91dec1415176b0fdc88d66eac82e1efc91f66102cb0fd2b8795d9a"
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -520,7 +526,9 @@ dependencies = [
  "clap",
  "colored",
  "dotenvy",
+ "flexver-rs",
  "ignore",
+ "regex",
  "serde",
  "serde_json",
  "toml",

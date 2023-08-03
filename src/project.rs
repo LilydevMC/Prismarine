@@ -2,24 +2,31 @@ use std::{env, fs::{self, File}, path::PathBuf, process::exit, io::{Read, Write}
 use colored::Colorize;
 use ignore::{DirEntry, WalkBuilder};
 use zip::{self, write::FileOptions};
+use regex::Regex;
 
 use crate::{
     models::{
         Config,
         General, PackMeta, Pack
     },
-    utils::{pris_err, pris_export_dir, pris_export_file}
+    utils::{
+        pris_err, 
+        pris_export_dir, 
+        pris_export_file,
+        VersionType
+    }
 };
 
 
 pub fn create_project(name: String, path: Option<PathBuf>) {
+    
     let default_new_dir: PathBuf = match env::var("PRIS_TEST_FOLDER") {
         Ok(new_path) => {
             PathBuf::from(new_path)
         },
         Err(_) => PathBuf::new()
     };
-
+    
     let project_path = match path.clone() {
         Some(path_buf) => {
             if path_buf == PathBuf::from(".") {
@@ -36,6 +43,8 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     };
 
+    println!("Creating new project at `{}`...", &project_path.as_os_str().to_str().unwrap());
+    
     match project_path.exists() {
         true => {
             match project_path.read_dir() {
@@ -105,7 +114,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     }
 
-    match fs::create_dir_all(&project_path.join("pack").join("minecraft")) {
+    match fs::create_dir_all(&project_path.join("pack").join("assets").join("minecraft")) {
         Ok(_) => (),
         Err(err) => {
             pris_err!(format!("Couldn't create directory: {}", err.to_string()));
@@ -121,9 +130,11 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     }
     
-    
 
-    // let config: Config = toml::Table::new();
+    // println!("✨ Project `{}` created! ✨\nFind out how to configure it at https://prismarine.jadelily.dev", &name.italic())
+
+    println!("{}", format!("\n✨ Project `{}` created! ✨\n", &name.italic()).bold());
+    println!("{}", format!("{}{}", "Find out how to configure it at: ", "https://prismarine.jadelily.dev".bright_blue()))
 
 }
 
@@ -144,6 +155,51 @@ pub fn export_project() {
         pris_err!("`.prisignore` file not present in current directory");
         exit(1)
     }
+
+    /*
+      Read Config file 
+     */
+    let config_string = match fs::read_to_string("prismarine.toml") {
+        Ok(string) => string,
+        Err(_) => {
+            pris_err!("Couldn't read `prismarine.toml` file");
+            exit(1)
+        }
+    };
+
+    let config: Config = match toml::from_str(config_string.as_str()) {
+        Ok(conf) => conf,
+        Err(_) => {
+            pris_err!(
+                "Couldn't parse `prismarine.toml` file. 
+                Please check that there are no extra or misspelled fields!"
+            );
+            exit(1)
+        }
+    };
+
+
+    let mut version_type = VersionType::None;
+
+    let release_regex = match Regex::new(r"^(?:\d+)(?:\.\d+)?(?:(?:\.\d+)?)(?:(?:-rc\d*|-pre\d*)|)$") {
+        Ok(regex) => regex,
+        Err(err) => panic!("Couldn't parse release regex: {}", err.to_string())
+    };
+
+    let snapshot_regex = match Regex::new(r"^(?:\d+w\d+[a-z])$") {
+        Ok(regex) => regex,
+        Err(err) => panic!("Couldn't parse snapshot regex: {}", err.to_string())
+    };
+
+    if release_regex.is_match(config.general.minecraft_version.as_str()) {
+        version_type = VersionType::Release;
+    } else if snapshot_regex.is_match(config.general.minecraft_version.as_str()) {
+        version_type = VersionType::Snapshot;
+    } else {
+        pris_err!("Invalid Minecraft version! Please check that it is formatted correctly in your `prismarine.toml` file.")
+    }
+    
+
 
     let mut included_items: Vec<DirEntry> = Vec::new();
 
@@ -166,21 +222,6 @@ pub fn export_project() {
         }
     }
 
-    let config_string = match fs::read_to_string("prismarine.toml") {
-        Ok(string) => string,
-        Err(_) => {
-            pris_err!("Couldn't read `prismarine.toml` file");
-            exit(1)
-        }
-    };
-
-    let config: Config = match toml::from_str(config_string.as_str()) {
-        Ok(conf) => conf,
-        Err(_) => {
-            pris_err!("Couldn't parse `prismarine.toml`");
-            exit(1)
-        }
-    };
 
     let output_file_name = match config.general.name_template {
         Some(res) => {

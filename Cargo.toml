@@ -5,8 +5,9 @@ authors = ["Jade Nash <jade@lilydev.com>"]
 description = "A utility for creating and exporting Minecraft resource packs."
 keywords = ["minecraft", "utility", "resource-pack", "texture-pack"]
 readme = "README.md"
-documentation = "https://prismarine.jadelily.dev"
 license = "MIT OR Apache-2.0"
+documentation = "https://prismarine.jadelily.dev"
+repository = "https://github.com/jadelily18/prismarine"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -21,5 +22,8 @@ serde_json = "1.0.104"
 
 ignore = "0.4.20"
 zip = "0.6.6"
+
+flexver-rs = "0.1.2"
+regex = "1.9.1"
 
 dotenvy = "0.15.7"
