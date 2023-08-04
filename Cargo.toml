@@ -1,6 +1,6 @@
 [package]
 name = "prismarine"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Jade Nash <jade@lilydev.com>"]
 description = "A utility for creating and exporting Minecraft resource packs."
 keywords = ["minecraft", "utility", "resource-pack", "texture-pack"]
