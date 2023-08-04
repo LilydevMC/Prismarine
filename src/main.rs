@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 use clap::{Parser, Subcommand, command, arg};
 
+mod error;
 mod models;
 mod project;
 mod utils;
+mod version;
 
 #[derive(Debug, Parser)]
 #[command(name = "prismarine")]

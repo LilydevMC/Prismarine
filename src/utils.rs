@@ -1,11 +1,4 @@
 
-pub enum VersionType {
-    None,
-    Release,
-    Snapshot
-}
-
-
 macro_rules! pris_err {
     ($err:expr) => {
         println!("{}{} {}", "Error".red().bold(), ":".bold(), $err)

@@ -27,3 +27,5 @@ flexver-rs = "0.1.2"
 regex = "1.9.1"
 
 dotenvy = "0.15.7"
+
+thiserror = "1.0.44"

@@ -12,9 +12,9 @@ use crate::{
     utils::{
         pris_err, 
         pris_export_dir, 
-        pris_export_file,
-        VersionType
-    }
+        pris_export_file
+    },
+    version::get_format
 };
 
 
@@ -42,8 +42,6 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
             env::current_dir().unwrap().join(default_new_dir).join(&name)
         }
     };
-
-    println!("Creating new project at `{}`...", &project_path.as_os_str().to_str().unwrap());
     
     match project_path.exists() {
         true => {
@@ -179,27 +177,24 @@ pub fn export_project() {
     };
 
 
-    let mut version_type = VersionType::None;
-
     let release_regex = match Regex::new(r"^(?:\d+)(?:\.\d+)?(?:(?:\.\d+)?)(?:(?:-rc\d*|-pre\d*)|)$") {
         Ok(regex) => regex,
-        Err(err) => panic!("Couldn't parse release regex: {}", err.to_string())
+        Err(err) => panic!("Couldn't parse version regex: {}", err.to_string())
     };
 
-    let snapshot_regex = match Regex::new(r"^(?:\d+w\d+[a-z])$") {
-        Ok(regex) => regex,
-        Err(err) => panic!("Couldn't parse snapshot regex: {}", err.to_string())
-    };
-
-    if release_regex.is_match(config.general.minecraft_version.as_str()) {
-        version_type = VersionType::Release;
-    } else if snapshot_regex.is_match(config.general.minecraft_version.as_str()) {
-        version_type = VersionType::Snapshot;
-    } else {
-        pris_err!("Invalid Minecraft version! Please check that it is formatted correctly in your `prismarine.toml` file.")
+    if !release_regex.is_match(config.general.minecraft_version.as_str()) {
+        pris_err!("Invalid Minecraft version! You can check the valid Minecraft versions at:\nhttps://prismarine.jadelily.dev/docs/getting-started/structure#prismarine-toml");
+        exit(1)
     }
     
-
+    let pack_format_ver = match get_format(config.general.minecraft_version) {
+        Ok(ver) => ver,
+        Err(_) => {
+            pris_err!("Invalid Minecraft version! You can check the valid Minecraft versions at:\nhttps://prismarine.jadelily.dev/docs/getting-started/structure#prismarine-toml");
+        exit(1)
+        }
+    };
+    
 
     let mut included_items: Vec<DirEntry> = Vec::new();
 
@@ -332,7 +327,7 @@ pub fn export_project() {
 
     let pack_meta = PackMeta {
         pack: Pack {
-            pack_format: 15,
+            pack_format: pack_format_ver,
             description: config.general.description
         }
     };
