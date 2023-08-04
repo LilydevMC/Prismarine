@@ -8,7 +8,12 @@ mod utils;
 mod version;
 
 #[derive(Debug, Parser)]
-#[command(name = "prismarine")]
+#[command(
+    name = "Prismarine",
+    author,
+    version,
+    about,
+)]
 struct CliArgs {
     #[command(subcommand)]
     commands: Commands
