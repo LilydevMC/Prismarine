@@ -47,18 +47,13 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         true => {
             match project_path.read_dir() {
                 Ok(mut dir_contents) => {
-                    if path.is_some() {
-                        match dir_contents.next() {
-                            Some(_) => {
-                                println!("{}{} Directory isn't empty!", "Error".red().bold(), ":".bold());
-                                exit(1)
-                            },
-                            None => ()
-                        }
+                    if path.is_some() && dir_contents.next().is_some() {
+                        println!("{}{} Directory isn't empty!", "Error".red().bold(), ":".bold());
+                        exit(1)
                     }
                 },
                 Err(err) => {
-                    println!("{}", err.to_string());
+                    println!("{}", err);
                     exit(1)
                 }
             }
@@ -67,7 +62,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
             match fs::create_dir_all(&project_path) {
                 Ok(_) => (),
                 Err(err) => {
-                    println!("{}", err.to_string());
+                    println!("{}", err);
                     exit(1)
                 }
             }
@@ -88,7 +83,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
 
     let config_string = toml::to_string_pretty(&config).expect("config thing");
 
-    match fs::write(&project_path.join("prismarine.toml"), config_string) {
+    match fs::write(project_path.join("prismarine.toml"), config_string) {
         Ok(_) => (),
         Err(err) => {
             pris_err!(format!("Couldn't write to file `prismarine.toml`: {}", err.to_string()));
@@ -96,7 +91,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     }
 
-    match fs::write(&project_path.join(".prisignore"), ".git\n.gitignore\n/source\n*.env\n*.zip\n") {
+    match fs::write(project_path.join(".prisignore"), ".git\n.gitignore\n/source\n*.env\n*.zip\n") {
         Ok(_) => (),
         Err(err) => {
             pris_err!(format!("Couldn't write to file `.prisignore`: {}", err.to_string()));
@@ -104,7 +99,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     }
 
-    match fs::create_dir(&project_path.join("source")) {
+    match fs::create_dir(project_path.join("source")) {
         Ok(_) => (),
         Err(err) => {
             pris_err!(format!("Couldn't create directory: {}", err.to_string()));
@@ -112,7 +107,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     }
 
-    match fs::create_dir_all(&project_path.join("pack").join("assets").join("minecraft")) {
+    match fs::create_dir_all(project_path.join("pack").join("assets").join("minecraft")) {
         Ok(_) => (),
         Err(err) => {
             pris_err!(format!("Couldn't create directory: {}", err.to_string()));
@@ -120,7 +115,7 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
         }
     }
     
-    match fs::write(&project_path.join("README.md"), format!("# {}\n\nThis is a resource pack made with Prismarine!", &name)) {
+    match fs::write(project_path.join("README.md"), format!("# {}\n\nThis is a resource pack made with Prismarine!", &name)) {
         Ok(_) => (),
         Err(err) => {
             pris_err!(format!("Couldn't write to file `README.md`: {}", err.to_string()));
@@ -131,8 +126,8 @@ pub fn create_project(name: String, path: Option<PathBuf>) {
 
     // println!("✨ Project `{}` created! ✨\nFind out how to configure it at https://prismarine.jadelily.dev", &name.italic())
 
-    println!("{}", format!("\n✨ Project `{}` created! ✨\n", &name.italic()).bold());
-    println!("{}", format!("{}{}", "Find out how to configure it at: ", "https://prismarine.jadelily.dev".bright_blue()))
+    println!("\n✨ Project `{}` created! ✨\n", &name.italic().bold());
+    println!("Find out how to configure it at: {}", "https://prismarine.jadelily.dev".bright_blue());
 
 }
 
@@ -177,9 +172,9 @@ pub fn export_project() {
     };
 
 
-    let release_regex = match Regex::new(r"^(?:\d+)(?:\.\d+)?(?:(?:\.\d+)?)(?:(?:-rc\d*|-pre\d*)|)$") {
+    let release_regex = match Regex::new(r"^\d+(?:\.\d+)?(?:\.\d+)?(?:(?:-rc\d*|-pre\d*)|)$") {
         Ok(regex) => regex,
-        Err(err) => panic!("Couldn't parse version regex: {}", err.to_string())
+        Err(err) => panic!("Couldn't parse version regex: {}", err)
     };
 
     if !release_regex.is_match(config.general.minecraft_version.as_str()) {
@@ -269,7 +264,7 @@ pub fn export_project() {
             pris_export_dir!(&name.to_str().unwrap());
             
             #[allow(deprecated)] // .add_directory_from_path() is deprecated, but it works well for now!
-            match zip_writer.add_directory_from_path(&name, zip_options) {
+            match zip_writer.add_directory_from_path( name, zip_options) {
                 Ok(_) => (),
                 Err(_) => {
                     pris_err!(format!("Couldn't add directory to zip: {}", &name.to_str().unwrap()));
@@ -304,7 +299,7 @@ pub fn export_project() {
                 }
             };
 
-            match zip_writer.write(&*file_buffer) {
+            match zip_writer.write(&file_buffer) {
                 Ok(_) => (),
                 Err(_) => {
                     pris_err!(format!("Couldn't write to zip from file: {}", &name.to_str().unwrap()));
