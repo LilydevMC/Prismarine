@@ -12,6 +12,11 @@ A utility for creating and exporting Minecraft resource packs, inspired by
 This is very incomplete as of now, but I plan on supporting things like
 [Vanilla Tweaks](https://vanillatweaks.net/) in the future.
 
+## Todo
+
+- [ ] Make Prismarine available in both library and binary forms
+- [ ] (?) Add support for Vanilla Tweaks
+
 ## License
 
 Prismarine is licensed with either the [MIT License](/LICENSE-MIT) or
