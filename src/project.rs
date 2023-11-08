@@ -172,7 +172,7 @@ pub fn export_project() {
     };
 
 
-    let release_regex = match Regex::new(r"^(?:\d+)(?:\.\d+)?(?:(?:\.\d+)?)(?:(?:-rc\d*|-pre\d*)|)$") {
+    let release_regex = match Regex::new(r"^\d+(?:\.\d+)?(?:\.\d+)?(?:(?:-rc\d*|-pre\d*)|)$") {
         Ok(regex) => regex,
         Err(err) => panic!("Couldn't parse version regex: {}", err)
     };
